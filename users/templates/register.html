@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <div class="col">
+            <div class="row">
+                <h1>Registro</h1>
+                <form method="post" onsubmit="return validateForm()">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit">Registrarse</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar mensajes (error o éxito) -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Mensaje</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalMessage"></p>
+                    <img id="modalImage" class="img-fluid" style="display: none;" alt="Imagen del mensaje">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    {% include 'mensaje.html' %}
+</body>
+<script>
+    // Función de validación del formulario
+    function validateForm() {
+        let password1 = document.getElementById("id_password1").value;
+        let password2 = document.getElementById("id_password2").value;
+        let modalMessage = document.getElementById("modalMessage");
+
+        // Validación de longitud mínima de la contraseña
+        if (password1.length < 8) {
+            showMessage("La contraseña debe tener al menos 8 caracteres.", "error");
+            return false;
+        }
+
+        // Validación del formato de la contraseña (al menos 1 mayúscula, 1 número y 1 carácter especial)
+        const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        if (!passwordPattern.test(password1)) {
+            showMessage("La contraseña debe contener al menos 8 caracteres, 1 número, 1 letra mayúscula y 1 carácter especial.", "error");
+            return false;
+        }
+
+        // Validación de coincidencia de contraseñas
+        if (password1 !== password2) {
+            showMessage("Las contraseñas no coinciden.", "error");
+            return false;
+        }
+
+        // Si todo está bien, puedes continuar con el envío
+        return true;
+    }
+
+    // Función para mostrar el mensaje en el modal
+    function showMessage(message, type) {
+        let modalMessage = document.getElementById("modalMessage");
+        modalMessage.innerText = message;
+
+        // Mostrar el modal con el mensaje
+        const modal = new bootstrap.Modal(document.getElementById('messageModal'));
+        modal.show();
+
+        // Opcional: puedes cambiar el color del modal según el tipo de mensaje
+        if (type === "error") {
+            document.getElementById("messageModalLabel").innerText = "Error";
+        } else {
+            document.getElementById("messageModalLabel").innerText = "Éxito";
+        }
+    }
+</script>
+
+</html>
