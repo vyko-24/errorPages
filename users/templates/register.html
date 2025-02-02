@@ -14,7 +14,7 @@
         <div class="col">
             <div class="row">
                 <h1>Registro</h1>
-                <form method="post" onsubmit="return validateForm()">
+                <form method="post" onsubmit="//return validateForm()" novalidate>
                     {% csrf_token %}
                     {{ form.as_p }}
                     <button type="submit">Registrarse</button>
@@ -68,13 +68,11 @@
             return false;
         }
 
-        // Validación de coincidencia de contraseñas
-        if (password1 !== password2) {
+       if (password1 !== password2) {
             showMessage("Las contraseñas no coinciden.", "error");
             return false;
         }
 
-        // Si todo está bien, puedes continuar con el envío
         return true;
     }
 
