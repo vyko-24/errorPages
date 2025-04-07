@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from app.views import index
 from app.views import *
+from django.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +30,8 @@ urlpatterns = [
     path('error_logs/', error_logs,name='error_logs'),
     path('get_error_logs/', get_error_logs,name='get_error_logs'),
     path('users/', include('users.urls')),
+    path('productos/', include('productos.urls')),
+    path('categoria/', include('categorias.urls')),
+    path('alumnos/', include('alumnos.urls')),
+    path('crud/', include('crud.urls')),
 ]

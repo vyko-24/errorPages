@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title><style>
+        .page{
+            transform: translateX(100%);
+            animation: slideIn 1.5s forwards;
+        }
+        .pageZ{
+            transform: translateX(100%);
+            animation: zoomIn 1.5s forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%);}
+            to {transform: translateX(0%);}
+        }
+
+        @keyframes zoomIn {
+            from{ transform: scale(0.8); opacity: 0;}
+            to{ transform: scale(1); opacity: 1;}
+        }
+    </style>
+    </head>
+    <body class="pageZ">
+    <h1>Título de la página</h1>
+    <img src="" alt=""/>
+    <h1>Bienvenido a la prueba de animación entre páginas</h1>
+    <a href="{% url 'agregar_producto' %}">Ir a la página de Producto</a>
+    <script>
+        //Una animación de salida
+        document.querySelectorAll("a").forEach(link => {
+            link.addEventListener("click", function(event){
+            event.preventDefault();
+            document.body.classList.add("page");
+            setTimeout(()=> {
+                window.location.href = this.href;
+            }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON categorias</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</head>
+<body class="bg-dark text-white">
+    
+    <div class="container">
+        <div class="col">
+            <br>
+            <div class="row" id="categorias">
+                <!-- aqui voy a cargar mis cards -->
+                <div class="card col-4">
+                    <div class="card-body">
+                      <h5 class="card-title">Títutlo de la tarjeta por defecto</h5>
+                      <p class="card-text">
+                        Texto por defecto de la tarjeta. </p>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function cargarCategorias() {
+            fetch('/categorias/api/get/')
+            .then(response => response.json())
+            .then(data => {
+                let catDiv = document.getElementById('categorias');
+                catDiv.innerHTML = ""; // Limpia el contenedor antes de agregar nuevas tarjetas
+                
+                data.forEach(categoria => {
+                    // Crear la tarjeta (div.card)
+                    var card = document.createElement("div");
+                    card.classList.add("card", "col-md-4", "m-2", "shadow-sm", "text-white","bg-dark", "border-light");
+
+                    // Imagen en la tarjeta
+                    var img = document.createElement("img");
+                    img.setAttribute("src", categoria.imagen);
+                    img.classList.add("card-img-top");
+                    img.setAttribute("alt", categoria.nombre);
+
+                    // Cuerpo de la tarjeta
+                    var body = document.createElement("div");
+                    body.classList.add("card-body");
+
+                    // Título
+                    var h5 = document.createElement("h5");
+                    h5.classList.add("card-title");
+                    h5.innerText = categoria.nombre;
+
+                    // Ensamblar la tarjeta
+                    body.appendChild(h5);
+                    card.appendChild(img);
+                    card.appendChild(body);
+
+                    // Agregar la tarjeta al contenedor
+                    catDiv.appendChild(card);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        cargarCategorias();
+    </script>
+</body>
+</html>

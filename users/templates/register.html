@@ -1,97 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Registro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<body class="bg-light">
 
-<body>
-    <div class="container">
-        <div class="col">
-            <div class="row">
-                <h1>Registro</h1>
-                <form method="post" onsubmit="//return validateForm()" novalidate>
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit">Registrarse</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para mostrar mensajes (error o éxito) -->
-    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="messageModalLabel">Mensaje</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="modalMessage"></p>
-                    <img id="modalImage" class="img-fluid" style="display: none;" alt="Imagen del mensaje">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg p-4">
+                    <h3 class="text-center">Registro de Usuario</h3>
+                    <form method="post" onsubmit="//return validateForm()" class="mt-3" novalidate>
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed top-0 end-0 p-3">
+            <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header bg-danger text-white">
+                    <strong class="me-auto">Error</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="errorToastBody"></div>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
-    {% include 'mensaje.html' %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showErrorToast(message) {
+            const errorToastBody = document.getElementById('errorToastBody');
+            const errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+            errorToastBody.textContent = message;
+            errorToast.show();
+        }
+
+        function validateForm() {
+            const email = document.getElementById("id_email").value;
+            const controlNumber = document.getElementById("id_control_number").value;
+            const tel = document.getElementById("id_tel").value;
+            const password1 = document.getElementById("id_password1").value;
+            const password2 = document.getElementById("id_password2").value;
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@utez\.edu\.mx$/;
+            const controlNumberRegex = /^\d{5}[A-Z]{2}\d{3}$/;
+            const telRegex = /^\d{10}$/;
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!#$%&?])[A-Za-z\d!#$%&?]{8,}$/;
+
+            if (!emailRegex.test(email)) {
+                showErrorToast("El correo debe ser de la UTEZ");
+                return false;
+            }
+
+            if (!controlNumberRegex.test(controlNumber)) {
+                showErrorToast("La matrícula debe tener el formato: 5 dígitos, 2 letras mayúsculas y 3 dígitos");
+                return false;
+            }
+
+            if (!telRegex.test(tel)) {
+                showErrorToast("El teléfono debe tener exactamente 10 dígitos.");
+                return false;
+            }
+
+            if (!passwordRegex.test(password1)) {
+                showErrorToast("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo (!, #, $, %, &, o ?).");
+                return false;
+            }
+
+            if (password1 !== password2) {
+                showErrorToast("Las contraseñas no coinciden.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+
+{% include 'mensaje.html' %}
 </body>
-<script>
-    // Función de validación del formulario
-    function validateForm() {
-        let password1 = document.getElementById("id_password1").value;
-        let password2 = document.getElementById("id_password2").value;
-        let modalMessage = document.getElementById("modalMessage");
-
-        // Validación de longitud mínima de la contraseña
-        if (password1.length < 8) {
-            showMessage("La contraseña debe tener al menos 8 caracteres.", "error");
-            return false;
-        }
-
-        // Validación del formato de la contraseña (al menos 1 mayúscula, 1 número y 1 carácter especial)
-        const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-        if (!passwordPattern.test(password1)) {
-            showMessage("La contraseña debe contener al menos 8 caracteres, 1 número, 1 letra mayúscula y 1 carácter especial.", "error");
-            return false;
-        }
-
-       if (password1 !== password2) {
-            showMessage("Las contraseñas no coinciden.", "error");
-            return false;
-        }
-
-        return true;
-    }
-
-    // Función para mostrar el mensaje en el modal
-    function showMessage(message, type) {
-        let modalMessage = document.getElementById("modalMessage");
-        modalMessage.innerText = message;
-
-        // Mostrar el modal con el mensaje
-        const modal = new bootstrap.Modal(document.getElementById('messageModal'));
-        modal.show();
-
-        // Opcional: puedes cambiar el color del modal según el tipo de mensaje
-        if (type === "error") {
-            document.getElementById("messageModalLabel").innerText = "Error";
-        } else {
-            document.getElementById("messageModalLabel").innerText = "Éxito";
-        }
-    }
-</script>
-
 </html>
+
+
+
+<!--
+    
+    <p>
+    <label for="id_email">Email:</label>
+    <input type="email" name="email" maxlength="254" autofocus="" required="" id="id_email">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_name">Name:</label>
+    <input type="text" name="name" maxlength="100" required="" id="id_name">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_surname">Surname:</label>
+    <input type="text" name="surname" maxlength="100" required="" id="id_surname">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_control_number">Control number:</label>
+    <input type="text" name="control_number" maxlength="20" required="" id="id_control_number">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_age">Age:</label>
+    <input type="number" name="age" min="0" required="" id="id_age">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_tel">Tel:</label>
+    <input type="text" name="tel" maxlength="15" required="" id="id_tel">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_password1">Password:</label>
+    <input type="password" name="password1" autocomplete="new-password" aria-describedby="id_password1_helptext" id="id_password1">
+    
+      <span class="helptext" id="id_password1_helptext"></span></p><ul><li>Your password can’t be too similar to your other personal information.</li><li>Your password must contain at least 8 characters.</li><li>Your password can’t be a commonly used password.</li><li>Your password can’t be entirely numeric.</li></ul>
+    
+    
+  <p></p>
+
+  
+  <p>
+    <label for="id_password2">Password confirmation:</label>
+    <input type="password" name="password2" autocomplete="new-password" aria-describedby="id_password2_helptext" id="id_password2">
+    
+      <span class="helptext" id="id_password2_helptext">Enter the same password as before, for verification.</span>
+    
+    
+      
+    
+  </p>
+    <button type="submit">Registrarse</button>
+    -->

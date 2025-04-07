@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="col">
+            <div class="row">
+
+                <div id="spinner" class="text-center col" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                    </div>
+                    <span>Cargando...</span>
+                </div>
+
+                <!-- E el formulario-->
+                <div class="col-6 mt-3">
+                    <h1>Agregar alumnos</h1>
+                    <form method="post" id="productoForm">
+                        {%csrf_token%}
+                        <input type="hidden" id="id_editar" name="id">
+                        {{form.as_p}}
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </form>
+                    <div>
+                        <p id="mensaje"></p>
+                    </div>
+                </div>
+
+                <!--La vista del producto-->
+                <div class="col-6 mt-3">
+                    <h1>Ver alumno</h1>
+                    <div class="row" id="productos">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function toogleSpinner(show) {
+            document.getElementById('spinner').style.display
+                = show ? 'block' : 'none';
+        }
+
+        function editar(id) {
+            console.log("Editando el alumno con id: " + id);
+            // Mostrar el spinner mientras cargamos los datos
+            toogleSpinner(true);
+
+            fetch('/alumnos/api/' + id + '/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+
+                    // Rellenar los campos del formulario de edición con los datos del alumno
+                    document.getElementById('id_editar').value = data.id;  // Campo oculto para el ID
+                    document.getElementById('id_nombre').value = data.nombre;
+                    document.getElementById('id_apellido').value = data.apellido;
+                    document.getElementById('id_edad').value = data.edad;
+                    document.getElementById('id_matricula').value = data.matricula;
+                    document.getElementById('id_correo').value = data.correo;
+
+                    // Mostrar el formulario de edición (si es necesario, puedes gestionar la visibilidad)
+                    document.getElementById('editarForm').style.display = 'block';
+
+                })
+                .catch(error => console.error('Error:', error))
+                .finally(() => toogleSpinner(false));
+        }
+
+        
+        function borrar(tipo) {
+            console.log("Se va a borra el alumno de id: " + tipo)
+            fetch('/alumnos/api/' + tipo + '/', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+            })
+                .then(data => {
+                    document.getElementById('mensaje').innerText = 'Coso Exitoso';
+                    cargarProductos();
+                })
+                .catch(error => console.error('Error: ', error))
+                .finally(() => toogleSpinner(false));
+        }
+    </script>
+    <script>
+        //Vamos a usar el formulario para hacer un request POST a mi API
+        var form = document.getElementById('productoForm');
+        //En este caso el event es el comportamiento del formulario
+        form.addEventListener('submit', function (event) {
+            //Para evitar que se mande un formulario en este contexto
+            event.preventDefault();
+
+            //Obtener los datos del formulario
+            let formData = new FormData(this);
+
+            //Convertir los datos a JSON
+            let jsonData = {};
+            //En este contexto el valor es el dato del input y la key es el "name"
+            formData.forEach((value, key) => jsonData[key] = value);
+
+            // Verificar si el campo "id_editar" tiene un valor (esto indica si estamos editando un alumno)
+            let alumnoId = document.getElementById('id_editar') ? document.getElementById('id_editar').value : null;
+
+            let method = alumnoId ? 'PUT' : 'POST';  // Si tenemos ID, usamos PUT, sino usamos POST
+            let url = alumnoId ? '/alumnos/api/' + alumnoId + '/' : '/alumnos/api/';  // Si tenemos ID, editamos; si no, creamos
+
+            // Enviar los datos al servidor con el método correspondiente (POST o PUT)
+            toogleSpinner(true);
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (method === 'POST') {
+                        document.getElementById('mensaje').innerText = 'Registro Exitoso';
+                    } else {
+                        document.getElementById('mensaje').innerText = 'Actualización exitosa';
+                    }
+
+                    // Recargar los productos después de la operación
+                    cargarProductos();
+                    limpiarFormulario();
+                })
+                .catch(error => console.error('Error:', error))
+                .finally(() => toogleSpinner(false));
+        });
+
+        function limpiarFormulario() {
+            const form = document.getElementById('productoForm');
+            form.reset();  // Resetea todos los campos del formulario.
+        }
+
+        function cargarProductos() {
+            toogleSpinner(true)
+            fetch('/alumnos/api/')
+                .then(response => response.json())
+                .then(data => {
+                    let productosDiv = document.getElementById('productos');
+                    productosDiv.innerHTML = "",
+                        data.forEach(alumno => {
+                            productosDiv.innerHTML +=
+                                `<div class="col-4">
+                            <strong>${alumno.nombre}</strong> 
+                            ${alumno.apellido} <br>
+                            ${alumno.edad} <br>
+                            ${alumno.matricula} <br>
+                            ${alumno.correo} <br>
+                        <button class="btn btn-warning" onclick="editar(${alumno.id})" >Editar</button>
+                        <button class="btn btn-danger" onclick="borrar(${alumno.id})">Borrar</button>
+                            </div>
+                            `
+                        });
+                })
+                .catch(error => console.error('Error:', error))
+                .finally(() => toogleSpinner(false));
+        }
+        cargarProductos()
+    </script>
+</body>
+
+</html>

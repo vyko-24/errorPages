@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-nju+ncf@mo%7#u6ooa4t9kcin9tmc6-wr4o=_6qg3mx@u!6j3j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,6 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'users',
+    'productos',
+    'categorias',
+    'rest_framework',
+    'alumnos',
+    'rest_framework_simplejwt',
+    'crud',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -52,7 +59,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+"""CORS_ALLOWED_ORIGINS = [
+    # IPs de las cuales tengo confianza
+    "http://127.0.0.1:5173/",
+    "http://localhost:5173",
+    "http://127.0.0.1:8000/",
+    "http://127.0.0.1:8000",
+]"""
 
 ROOT_URLCONF = 'errorPages.urls'
 
@@ -136,10 +156,25 @@ HANDLER404 = 'app.views.show_error_404'
 #definir que debe hacer django cuando ocurre un 500
 HANDLER500 = 'app.views.show_error_500'
 
-#ya no tan las cosas esas profe
 
-AUTH_USER_MODEL= 'users.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/home' # Dónde irán los usuarios tras iniciar sesión
 LOGOUT_REDIRECT_URL = '/users/login/'
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES":(
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+#Configuración para Gmail
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+# Usar su correo de UTEZ
+EMAIL_HOST_USER = "20223tn008@utez.edu.mx"
+# Obtener de https://myaccount.google.com/apppasswords
+EMAIL_HOST_PASSWORD = "akwe hkcq kief fgim"
